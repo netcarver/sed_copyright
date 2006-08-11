@@ -437,6 +437,7 @@ function _sed_build_href( $text, $href, $title ) {
 //
 function sed_copyright_date( $atts )	{
 	global $thisarticle;
+	global $prefs;
 	global $is_article_list;
 	global $sed_copyright_owner;
 
@@ -449,7 +450,19 @@ function sed_copyright_date( $atts )	{
 		'start_year'=> '', 		// Optional: Sets the start year. Leave empty for automatic detection of start year.
 		'end_year' 	=> '',		// Optional: Sets the end year. Leave empty to autodetect end year. Set to 'now' for this year.
 		'date_type' => 'range',	// Optional: sets the type of date stamp. Valid: 'range'(start-end), 'start' or 'end'.
-		), $atts));
+		
+		# The following are only needed to keep TxP 4.0.4+ happy in testing and debug modes!
+		'owner'		=> $prefs['sitename'],	// Optional: Copyright owner. Goes after the date section.
+		'owner_href'=> '',			// Optional: href for the owner string.
+		'owner_title'=> '',			// Optional but recommended if href is set.Title attribute for the href.
+		'copy_text'	=> '&copy;',	// Optional: The copyright string to use before the date section.
+		'order'		=> 'cdo',		// Optional: order of sections. Omit or leave blank for default copyright-date-owner order.
+									//		 Valid values: '', 'cdo', 'cod'.
+		'wraptag'	=> '',			// Optional: Name of the tag to use to wrap the listing.
+		'class'		=> 'copyright',	// Optional: Name of class to use for the wrap tag.
+		'custom'	=> '',			// Optional: If you are using the tag in an article form or an article body, 
+									//			 set this to the custom field from which to read values.
+		), $atts ));
 
 	$start_extra = '';	//	Holds extra debug strings from date access routines.
 	$end_extra = '';	//	Holds extra debug strings from date access routines.
