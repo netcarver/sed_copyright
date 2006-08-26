@@ -284,11 +284,11 @@ function _sed_article_copyright_callback( $event, $step ) {
 function _update_cache() {
 	$first_post = safe_field( 'Posted', 'textpattern', SED_FIRST_POST_QUERY );
 	$first_post = substr( $first_post, 0, 4 );
-	safe_upsert( 'txp_prefs', "val='$first_post', prefs_id='1'", "name='sed_first_post_year'" );
+	@safe_upsert( 'txp_prefs', "val='$first_post', prefs_id='1'", "name='sed_first_post_year'" );
 
 	$last_mod   = safe_field( 'lastmod', 'textpattern', SED_LAST_MOD_QUERY );
 	$last_mod   = substr( $last_mod , 0, 4 );
-	safe_upsert( 'txp_prefs', "val='$last_mod', prefs_id='1'", "name='sed_last_mod_year'" );
+	@safe_upsert( 'txp_prefs', "val='$last_mod', prefs_id='1'", "name='sed_last_mod_year'" );
 	}
 
 function _get_start_year( $start_year, &$extra ) {
@@ -323,7 +323,7 @@ function _get_start_year( $start_year, &$extra ) {
 				//
 				//	Now store the result (we need to create the extra field to do this.)
 				//
-				safe_upsert( 'txp_prefs', "val='$result', prefs_id='1'", "name='sed_first_post_year'" );
+				@safe_upsert( 'txp_prefs', "val='$result', prefs_id='1'", "name='sed_first_post_year'" );
 				}
 			}
 		}
@@ -367,7 +367,7 @@ function _get_end_year( $end_year, &$extra ) {
 					//
 					//	Now store the result (we need to create the extra field to do this.)
 					//
-					$rs = safe_upsert( 'txp_prefs', "val='$result', prefs_id='1'", "name='sed_last_mod_year'" );
+					$rs = @safe_upsert( 'txp_prefs', "val='$result', prefs_id='1'", "name='sed_last_mod_year'" );
 					}
 				}
 			else {
@@ -450,7 +450,7 @@ function sed_copyright_date( $atts )	{
 		'start_year'=> '', 		// Optional: Sets the start year. Leave empty for automatic detection of start year.
 		'end_year' 	=> '',		// Optional: Sets the end year. Leave empty to autodetect end year. Set to 'now' for this year.
 		'date_type' => 'range',	// Optional: sets the type of date stamp. Valid: 'range'(start-end), 'start' or 'end'.
-		
+
 		# The following are only needed to keep TxP 4.0.4+ happy in testing and debug modes!
 		'owner'		=> $prefs['sitename'],	// Optional: Copyright owner. Goes after the date section.
 		'owner_href'=> '',			// Optional: href for the owner string.
@@ -460,7 +460,7 @@ function sed_copyright_date( $atts )	{
 									//		 Valid values: '', 'cdo', 'cod'.
 		'wraptag'	=> '',			// Optional: Name of the tag to use to wrap the listing.
 		'class'		=> 'copyright',	// Optional: Name of class to use for the wrap tag.
-		'custom'	=> '',			// Optional: If you are using the tag in an article form or an article body, 
+		'custom'	=> '',			// Optional: If you are using the tag in an article form or an article body,
 									//			 set this to the custom field from which to read values.
 		), $atts ));
 
