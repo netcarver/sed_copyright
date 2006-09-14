@@ -7,7 +7,7 @@ $plugin['author_uri'] = 'http://txp-plugins.netcarving.com';
 $plugin['description'] = 'Automatic generation of the copyright notice.';
 $plugin['type'] = 1;
 
-@include_once('zem_tpl.php');
+@include_once('../zem_tpl.php');
 
 if (0) {
 ?>
