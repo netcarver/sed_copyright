@@ -49,8 +49,11 @@ Wraptag and class for the resulting notice are also customizable.
 
 h2(#changes). Changes from last version
 
+* Fixed duplicate key warnings.
+* Updated for 4.0.4
+* Fixed site url for plugins page.
+* Updates to allow operation with latest version of sed_plugin_library (v0.3)
 * Added missing help information.
-* Fixed site url in plugins page.
 
 h2(#sed-copyright-date-tag). The <code><txp:sed_copyright_date/></code> tag.
 
@@ -161,16 +164,12 @@ If you omit the owner field then it default's to the article author. If you omit
 
 The main use of this approach would be for attributing article copyright to an individual not in the publishing chain or to the person who originally posted the article.
 
-h2(#to-do). To-Do and Feature Enhancements.
-
-Feature ideas (in sequence of *likely* implementation)&#8230;
-
-* If it is used inside an article form displaying an individual article then pull the owner's name and article dates from the author's real name in the DB.<br/>Start date would be the posted date, end date would be the lastmod date but only if the author made the mod, otherwise would need to stick to a single year in the date section.
-
 h2(#version-history). Version History
 
-v1.3 July 8th, 2006
+v1.3 October 23rd, 2006
 
+* Fixed duplicate key warnings.
+* Updated for 4.0.4
 * Fixed site url for plugins page.
 * Updates to allow operation with latest version of sed_plugin_library (v0.3)
 * Added missing help information.
