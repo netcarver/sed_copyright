@@ -1,8 +1,8 @@
-﻿<?php
+<?php
 
 $plugin['name'] = 'sed_copyright';
 $plugin['version'] = '1.3';
-$plugin['author'] = 'Stephen Dickinson';
+$plugin['author'] = 'Netcarver';
 $plugin['author_uri'] = 'http://txp-plugins.netcarving.com';
 $plugin['description'] = 'Automatic generation of the copyright notice.';
 $plugin['type'] = 1;
