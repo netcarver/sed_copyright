@@ -12,7 +12,7 @@ if( !empty( $revision ) )
 	}
 
 $plugin['name'] = 'sed_copyright';
-$plugin['version'] = '1.3';
+$plugin['version'] = '1.3' . $revision;
 $plugin['author'] = 'Netcarver';
 $plugin['author_uri'] = 'http://txp-plugins.netcarving.com';
 $plugin['description'] = 'Automatic generation of the copyright notice.';
