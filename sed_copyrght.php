@@ -10,12 +10,8 @@ $plugin['type'] = 1;
 @include_once('../zem_tpl.php');
 
 # --- BEGIN PLUGIN CODE ---
-
-// ------------------ IMMEDIATE CODE FOLLOWS ------------------
-//
-//	We need the field unpacking functions from the library...
-//
-require_plugin('sed_plugin_library');
+# ================== IMMEDIATE CODE FOLLOWS ==================
+require_plugin('sed_plugin_library'); #	We need the field unpacking functions from the library.
 
 if (@txpinterface == 'admin') 
 	{
@@ -26,15 +22,12 @@ if (@txpinterface == 'admin')
 define( 'SED_FIRST_POST_QUERY', 'Status>=4 order by `Posted` asc limit 0, 1' );
 define( 'SED_LAST_MOD_QUERY', 'Status>=4 and `Posted` < now() order by `LastMod` desc limit 0, 1' );
 
-// ------------------ PRIVATE FUNCTIONS FOLLOW ------------------
-
+# ================== PRIVATE FUNCTIONS FOLLOW ==================
 function _sed_article_delete_callback( $event, $step )	
 	{
-	//
-	//	When an article is deleted from the DB we need to recalc the
-	// first post year and last update year, just in case that article
-	// was setting one or both of those dates...
-	//
+	#	When an article is deleted from the DB we need to recalc the
+	# first post year and last update year, just in case that article
+	# was setting one or both of those dates...
 	if(!empty($step) and ('list_multi_edit' == $step)) 
 		{
 		require_privs('article');
@@ -92,38 +85,30 @@ function _get_start_year( $start_year, &$extra )
 		}
 	else 
 		{
-		//	Have we done the lookup before?
-		//
+		#	Have we done the lookup before?
 		if( array_key_exists('sed_first_post_year', $prefs) ) 
 			{
-			//
-			//	Yes, so use the result...
-			//
+			#	Yes, so use the result...
 			$result = $prefs['sed_first_post_year'];
 			$extra = '(start from cache)';
 			}
 		else 
 			{
-			//	No, so find the youngest article...
-			//
+			#	No, so find the youngest article...
 			$first_post = safe_field( 'Posted', 'textpattern', SED_FIRST_POST_QUERY );
 			if( !empty( $first_post) )	
 				{
-				//
-				//	Trim the date down to get the year...
-				//
+				#	Trim the date down to get the year...
 				$result = substr( $first_post, 0, 4 );
 				$extra = '(start from Article Table)';
 
-				//
-				//	Now store the result (we need to create the extra field to do this.)
-				//
+				#	Now store the result (we need to create the extra field to do this.)
 				@safe_upsert( 'txp_prefs', "val='$result', prefs_id='1'", "name='sed_first_post_year'" );
 				}
 			}
 		}
 
-	// sanity check the resulting date...
+	# sanity check the resulting date...
 	if( !empty( $result )) 
 		{
 		$this_year = date('Y');
@@ -155,35 +140,28 @@ function _get_end_year( $end_year, &$extra )
 			{
 			if( $prefs['comment_means_site_updated'] )	
 				{
-				//
-				//	Cannot rely of the $prefs['lastmod'] as even others' comments are updating that so pull from the DB instead...
-				//
+				#	Cannot rely of the $prefs['lastmod'] as even others' comments are updating that so pull from the DB instead...
 				$last_mod   = safe_field( 'lastmod', 'textpattern', SED_LAST_MOD_QUERY );
 				if( !empty( $last_mod) )	
 					{
-					//
-					//	Trim the date down to get the year...
-					//
+					#	Trim the date down to get the year...
 					$result = substr( $last_mod, 0, 4 );
 					$extra = '(end from Article Table)';
 
-					//
-					//	Now store the result (we need to create the extra field to do this.)
-					//
+					#	Now store the result (we need to create the extra field to do this.)
 					$rs = @safe_upsert( 'txp_prefs', "val='$result', prefs_id='1'", "name='sed_last_mod_year'" );
 					}
 				}
 			else 
 				{
-				//	lastmod is tracking articles so pull it from the lastmod field of the $prefs...
-				//
+				#	lastmod is tracking articles so pull it from the lastmod field of the $prefs...
 				$result = substr( $prefs['lastmod'] , 0 , 4 );
 				$extra = '(end from Global Prefs)';
 				}
 			}
 		}
 
-	// sanity check the resulting date...
+	# sanity check the resulting date...
 	if( !empty( $result )) 
 		{
 		$this_year = date('Y');
@@ -194,18 +172,15 @@ function _get_end_year( $end_year, &$extra )
 	return $result;
 	}
 
-
-//
-//	Builds an 'a' hyperlink using the $text, $href strings and (optional)$title string.
-//
-//	The $href parameter needs to include the resource ID at the beginning...
-//	Emails:				mailto:
-//  Off-site links: 	http://
-//
-//	Unless they are on-site links.
-//
 function _sed_build_href( $text, $href, $title ) 
 	{
+	#	Builds an 'a' hyperlink using the $text, $href strings and (optional)$title string.
+	#
+	#	The $href parameter needs to include the resource ID at the beginning...
+	#	Emails:				mailto:
+	#  Off-site links: 	http://
+	#
+	#	Unless they are on-site links.
 	$result = '';
 
 	$href = strtolower( $href );
@@ -224,26 +199,20 @@ function _sed_build_href( $text, $href, $title )
 	return $result;
 	}
 
-
-// -------------- CLIENT-SIDE TAG HANDLERS FOLLOW --------------
-
-
-//============= SED_COPYRIGHT_YEARS TAG HANDLER ================
-//
-//	Outputs a blank string, a year or a year range according to
-// the $atts input. By default will output a year range where the
-// start year is the year of the first posted article in the TXP
-// article database table and the end year is either...
-// 1. The year from the lasmod date from the global variables
-// or
-// 2. The year that the last change to the article DB table was
-// committed
-//
-//	Of these, option 1 is faster but is not available to us if
-// the TXP installation has comments updating the lastmod date.
-//
+#================ CLIENT-SIDE TAG HANDLERS FOLLOW ==============
 function sed_copyright_date( $atts )
 	{
+	#	Outputs a blank string, a year or a year range according to
+	# the $atts input. By default will output a year range where the
+	# start year is the year of the first posted article in the TXP
+	# article database table and the end year is either...
+	# 1. The year from the lasmod date from the global variables
+	# or
+	# 2. The year that the last change to the article DB table was
+	# committed
+	#
+	#	Of these, option 1 is faster but is not available to us if
+	# the TXP installation has comments updating the lastmod date.
 	global $thisarticle;
 	global $prefs;
 	global $is_article_list;
@@ -255,25 +224,25 @@ function sed_copyright_date( $atts )
 	extract( lAtts( array(
 		'debug'		=> '',
 		'custom'	=> '',
-		'start_year'=> '', 		// Optional: Sets the start year. Leave empty for automatic detection of start year.
-		'end_year' 	=> '',		// Optional: Sets the end year. Leave empty to autodetect end year. Set to 'now' for this year.
-		'date_type' => 'range',	// Optional: sets the type of date stamp. Valid: 'range'(start-end), 'start' or 'end'.
+		'start_year'=> '', 		# Optional: Sets the start year. Leave empty for automatic detection of start year.
+		'end_year' 	=> '',		# Optional: Sets the end year. Leave empty to autodetect end year. Set to 'now' for this year.
+		'date_type' => 'range',	# Optional: sets the type of date stamp. Valid: 'range'(start-end), 'start' or 'end'.
 
 		# The following are only needed to keep TxP 4.0.4+ happy in testing and debug modes!
-		'owner'		=> $prefs['sitename'],	// Optional: Copyright owner. Goes after the date section.
-		'owner_href'=> '',			// Optional: href for the owner string.
-		'owner_title'=> '',			// Optional but recommended if href is set.Title attribute for the href.
-		'copy_text'	=> '&copy;',	// Optional: The copyright string to use before the date section.
-		'order'		=> 'cdo',		// Optional: order of sections. Omit or leave blank for default copyright-date-owner order.
-									//		 Valid values: '', 'cdo', 'cod'.
-		'wraptag'	=> '',			// Optional: Name of the tag to use to wrap the listing.
-		'class'		=> 'copyright',	// Optional: Name of class to use for the wrap tag.
-		'custom'	=> '',			// Optional: If you are using the tag in an article form or an article body,
-									//			 set this to the custom field from which to read values.
+		'owner'		=> $prefs['sitename'],	# Optional: Copyright owner. Goes after the date section.
+		'owner_href'=> '',			# Optional: href for the owner string.
+		'owner_title'=> '',			# Optional but recommended if href is set.Title attribute for the href.
+		'copy_text'	=> '&copy;',	# Optional: The copyright string to use before the date section.
+		'order'		=> 'cdo',		# Optional: order of sections. Omit or leave blank for default copyright-date-owner order.
+									#		 Valid values: '', 'cdo', 'cod'.
+		'wraptag'	=> '',			# Optional: Name of the tag to use to wrap the listing.
+		'class'		=> 'copyright',	# Optional: Name of class to use for the wrap tag.
+		'custom'	=> '',			# Optional: If you are using the tag in an article form or an article body,
+									#			 set this to the custom field from which to read values.
 		), $atts ));
 
-	$start_extra = '';	//	Holds extra debug strings from date access routines.
-	$end_extra = '';	//	Holds extra debug strings from date access routines.
+	$start_extra = '';	# Holds extra debug strings from date access routines.
+	$end_extra = '';	# Holds extra debug strings from date access routines.
 
 	if( !empty($debug) ) 
 		{
@@ -284,10 +253,8 @@ function sed_copyright_date( $atts )
 		echo "<br/>=== Copyright Date:  End  Attributes ===<br/>\n";
 		}
 
-	//
-	//	Call the date access routines. These will access the cached date variables if needed and also give extra information
-	// for debug in the $_extra strings.
-	//
+	#	Call the date access routines. These will access the cached date variables if needed and also give extra information
+	# for debug in the $_extra strings.
 	if( empty($custom) or (true==$is_article_list) ) 
 		{
 		$start = _get_start_year( $start_year , $start_extra );
@@ -295,15 +262,15 @@ function sed_copyright_date( $atts )
 		}
 	else
 		{
-		//	This section deals with article copyright processing. It looks in the named custom field for a section called 'copyright' and pulls
-		// any needed details from it. Defaults to the posted date and article author but that can be overidden.
-		//	copyright(attrib1='val1';attrib2='val2')
-		//	Valid attributes are...
-		//		owner 	(if not supplied defaults to the article author.)
-		//		owner_href and owner_title.
-		//		start	(if missing defaults to the year the article was posted)
-		//		end		(if missing defaults to the start year)
-		//
+		#	This section deals with article copyright processing. It looks in the named custom field for a section called 'copyright' and pulls
+		# any needed details from it. Defaults to the posted date and article author but that can be overidden.
+		#	copyright(attrib1='val1';attrib2='val2')
+		#	Valid attributes are...
+		#		owner 	(if not supplied defaults to the article author.)
+		#		owner_href and owner_title.
+		#		start	(if missing defaults to the year the article was posted)
+		#		end		(if missing defaults to the start year)
+		#
 		$packed_string = @$thisarticle[$custom];
 		$vars = sed_lib_extract_packed_variable_section( 'copyright' , $packed_string );
 
@@ -319,24 +286,18 @@ function sed_copyright_date( $atts )
 		$end_extra = '(end from custom field)';
 		}
 
-	//
-	//	Only ouput the extra debug info if needed.
-	//
+	#	Only ouput the extra debug info if needed.
 	if( empty( $debug ) ) 
 		{
 		$start_extra = '';
 		$end_extra   = '';
 		}
 
-	//
-	//	If a range has been requested and the start year is the same as the end year then compress the format...
-	//
+	#	If a range has been requested and the start year is the same as the end year then compress the format...
 	if( ($date_type=='range') and ($start === $end) and ($start_extra === $end_extra ) )
 		$date_type = 'end';
 
-	//
-	//	Do any other compressions as needed...
-	//
+	#	Do any other compressions as needed...
 	if( empty( $start ) && empty( $end ) )
 		$date_type = 'none';
 	if( empty( $start ) && !empty( $end ) )
@@ -344,9 +305,7 @@ function sed_copyright_date( $atts )
 	if( !empty( $start ) && empty( $end ) )
 		$date_type = 'start';
 
-	//
-	//	Format the resulting date string...
-	//
+	#	Format the resulting date string...
 	switch( $date_type )	
 		{
 		case 'range'	:	$result = $start_extra.$start.'-'.$end_extra.$end ;
@@ -361,41 +320,37 @@ function sed_copyright_date( $atts )
 	return $result;
 	}
 
-
-//============= SED_COPYRIGHT TAG HANDLER ================
-//
-//	Outputs a well formatted copyright message. It calls
-// sed_copyright_year to pull out the information for the
-// date-section then jois it with the copyright and owner
-// sections to give you your formatted copyright message.
-//
 function sed_copyright($atts) 
 	{
+	#	Outputs a well formatted copyright message. It calls
+	# sed_copyright_year to pull out the information for the
+	# date-section then jois it with the copyright and owner
+	# sections to give you your formatted copyright message.
 	global $sed_copyright_owner;
 	global $prefs;
 
-	// define output variable(s)...
+	# define output variable(s)...
 	$out_result = '';
 	$debug = '';
 	$sed_copyright_owner = '';
 
-	// process attribute variables...
+	# process attribute variables...
 	extract( lAtts( array(
 		'debug'		=> '',
 		'custom'	=> '',
-		'owner'		=> $prefs['sitename'],	// Optional: Copyright owner. Goes after the date section.
-		'owner_href'=> '',			// Optional: href for the owner string.
-		'owner_title'=> '',			// Optional but recommended if href is set.Title attribute for the href.
-		'copy_text'	=> '&copy;',	// Optional: The copyright string to use before the date section.
-		'start_year'=> '', 			// Optional: Sets the start year. Leave empty for automatic detection of start year.
-		'end_year' 	=> '',			// Optional: Sets the end year. Leave empty for auto detect of end year or set to 'now' for current year.
-		'date_type' => 'range',		// Optional: sets the type of date stamp. Valid: 'range'(start-end), 'start' or 'end'.
-		'order'		=> 'cdo',		// Optional: order of sections. Omit or leave blank for default copyright-date-owner order.
-									//			 Valid values: '', 'cdo', 'cod'.
-		'wraptag'	=> '',			// Optional: Name of the tag to use to wrap the listing.
-		'class'		=> 'copyright',	// Optional: Name of class to use for the wrap tag.
-		'custom'	=> '',			// Optional: If you are using the tag in an article form or an article body, set this to the custom field from
-									// 			 which to read values.
+		'owner'		=> $prefs['sitename'],	# Optional: Copyright owner. Goes after the date section.
+		'owner_href'=> '',			# Optional: href for the owner string.
+		'owner_title'=> '',			# Optional but recommended if href is set.Title attribute for the href.
+		'copy_text'	=> '&copy;',	# Optional: The copyright string to use before the date section.
+		'start_year'=> '', 			# Optional: Sets the start year. Leave empty for automatic detection of start year.
+		'end_year' 	=> '',			# Optional: Sets the end year. Leave empty for auto detect of end year or set to 'now' for current year.
+		'date_type' => 'range',		# Optional: sets the type of date stamp. Valid: 'range'(start-end), 'start' or 'end'.
+		'order'		=> 'cdo',		# Optional: order of sections. Omit or leave blank for default copyright-date-owner order.
+									#			 Valid values: '', 'cdo', 'cod'.
+		'wraptag'	=> '',			# Optional: Name of the tag to use to wrap the listing.
+		'class'		=> 'copyright',	# Optional: Name of class to use for the wrap tag.
+		'custom'	=> '',			# Optional: If you are using the tag in an article form or an article body, set this to the custom field from
+									# 			 which to read values.
 		), $atts));
 
 	if( !empty( $debug ) ) 
@@ -404,23 +359,23 @@ function sed_copyright($atts)
 		print_r( $prefs );
 		}
 
-	//
-	//	If being used with a custom field but outside and article, don't show anything!
-	//
+	#
+	#	If being used with a custom field but outside and article, don't show anything!
+	#
 	if( !empty($custom) and !empty($thisarticle) and empty($thisarticle[$custom]))
 		return '';
 
-	// ----------- DATE SECTION PROCESSING ---------------
-	//
-	//	Simply call the date tag handler...
-	//
+	# ----------- DATE SECTION PROCESSING ---------------
+	#
+	#	Simply call the date tag handler...
+	#
 	$date = sed_copyright_date( $atts );
 
 
-	// ----------- OWNER SECTION PROCESSING ---------------
-	//
-	//	Build the owner link (if required)...
-	//
+	# ----------- OWNER SECTION PROCESSING ---------------
+	#
+	#	Build the owner link (if required)...
+	#
 	if( !empty($sed_copyright_owner) )
 		$owner = $sed_copyright_owner;
 	elseif( !empty( $owner_href ) )	
@@ -428,10 +383,10 @@ function sed_copyright($atts)
 		$owner = _sed_build_href( $owner, $owner_href, $owner_title );
 		}
 
-	// ---------------- MERGE SECTIONS -------------------
-	//
-	//	Join it together...
-	//
+	# ---------------- MERGE SECTIONS -------------------
+	#
+	#	Join it together...
+	#
 	$bits = array();
 	switch( $order )	
 		{
