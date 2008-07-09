@@ -17,7 +17,8 @@ $plugin['type'] = 1;
 //
 require_plugin('sed_plugin_library');
 
-if (@txpinterface == 'admin') {
+if (@txpinterface == 'admin') 
+	{
 	register_callback( '_sed_article_copyright_callback', 'article' );
 	register_callback( '_sed_article_delete_callback', 'list' );
 	}
@@ -27,13 +28,15 @@ define( 'SED_LAST_MOD_QUERY', 'Status>=4 and `Posted` < now() order by `LastMod`
 
 // ------------------ PRIVATE FUNCTIONS FOLLOW ------------------
 
-function _sed_article_delete_callback( $event, $step )	{
+function _sed_article_delete_callback( $event, $step )	
+	{
 	//
 	//	When an article is deleted from the DB we need to recalc the
 	// first post year and last update year, just in case that article
 	// was setting one or both of those dates...
 	//
-	if(!empty($step) and ('list_multi_edit' == $step)) {
+	if(!empty($step) and ('list_multi_edit' == $step)) 
+		{
 		require_privs('article');
 
 		$method = ps('method');
@@ -43,7 +46,8 @@ function _sed_article_delete_callback( $event, $step )	{
 		}
 	}
 
-function _sed_article_copyright_callback( $event, $step ) {
+function _sed_article_copyright_callback( $event, $step ) 
+	{
 	if( !empty($event) and ($event != 'article') )
 		return;
 
@@ -57,14 +61,16 @@ function _sed_article_copyright_callback( $event, $step ) {
 	if ($publish)
 		$step = 'publish';
 
-	switch(strtolower($step)) {
+	switch(strtolower($step)) 
+		{
 		case 'publish':
 		case 'delete':
 		case 'save':    _update_cache();
 		}
 	}
 
-function _update_cache() {
+function _update_cache() 
+	{
 	$first_post = safe_field( 'Posted', 'textpattern', SED_FIRST_POST_QUERY );
 	$first_post = substr( $first_post, 0, 4 );
 	@safe_upsert( 'txp_prefs', "val='$first_post', prefs_id='1'", "name='sed_first_post_year'" );
@@ -74,29 +80,35 @@ function _update_cache() {
 	@safe_upsert( 'txp_prefs', "val='$last_mod', prefs_id='1'", "name='sed_last_mod_year'" );
 	}
 
-function _get_start_year( $start_year, &$extra ) {
+function _get_start_year( $start_year, &$extra ) 
+	{
 	global $prefs;
 	$result = '';
 
-	if( !empty( $start_year ) ) {
+	if( !empty( $start_year ) ) 
+		{
 		$result = $start_year;
 		$extra = '(from Tag Atts)';
 		}
-	else {
+	else 
+		{
 		//	Have we done the lookup before?
 		//
-		if( array_key_exists('sed_first_post_year', $prefs) ) {
+		if( array_key_exists('sed_first_post_year', $prefs) ) 
+			{
 			//
 			//	Yes, so use the result...
 			//
 			$result = $prefs['sed_first_post_year'];
 			$extra = '(start from cache)';
 			}
-		else {
+		else 
+			{
 			//	No, so find the youngest article...
 			//
 			$first_post = safe_field( 'Posted', 'textpattern', SED_FIRST_POST_QUERY );
-			if( !empty( $first_post) )	{
+			if( !empty( $first_post) )	
+				{
 				//
 				//	Trim the date down to get the year...
 				//
@@ -112,7 +124,8 @@ function _get_start_year( $start_year, &$extra ) {
 		}
 
 	// sanity check the resulting date...
-	if( !empty( $result )) {
+	if( !empty( $result )) 
+		{
 		$this_year = date('Y');
 		if( $result > $this_year )
 			$result = $this_year;
@@ -121,26 +134,33 @@ function _get_start_year( $start_year, &$extra ) {
 	return $result;
 	}
 
-function _get_end_year( $end_year, &$extra ) {
+function _get_end_year( $end_year, &$extra ) 
+	{
 	global $prefs;
 	$result = '';
 
-	if( !empty( $end_year ) ) {
+	if( !empty( $end_year ) ) 
+		{
 		( 'now' === $end_year ) ? $result = date('Y') : $result = $end_year;
 		$extra = '(from Tag Attr)';
 		}
-	else {
-		if( array_key_exists('sed_last_mod_year', $prefs) && !empty($prefs['sed_last_mod_year'])  ) {
+	else 
+		{
+		if( array_key_exists('sed_last_mod_year', $prefs) && !empty($prefs['sed_last_mod_year'])  ) 
+			{
 			$result = $prefs['sed_last_mod_year'];
 			$extra = '(end from cache)';
 			}
-		else {
-			if( $prefs['comment_means_site_updated'] )	{
+		else 
+			{
+			if( $prefs['comment_means_site_updated'] )	
+				{
 				//
 				//	Cannot rely of the $prefs['lastmod'] as even others' comments are updating that so pull from the DB instead...
 				//
 				$last_mod   = safe_field( 'lastmod', 'textpattern', SED_LAST_MOD_QUERY );
-				if( !empty( $last_mod) )	{
+				if( !empty( $last_mod) )	
+					{
 					//
 					//	Trim the date down to get the year...
 					//
@@ -153,7 +173,8 @@ function _get_end_year( $end_year, &$extra ) {
 					$rs = @safe_upsert( 'txp_prefs', "val='$result', prefs_id='1'", "name='sed_last_mod_year'" );
 					}
 				}
-			else {
+			else 
+				{
 				//	lastmod is tracking articles so pull it from the lastmod field of the $prefs...
 				//
 				$result = substr( $prefs['lastmod'] , 0 , 4 );
@@ -163,7 +184,8 @@ function _get_end_year( $end_year, &$extra ) {
 		}
 
 	// sanity check the resulting date...
-	if( !empty( $result )) {
+	if( !empty( $result )) 
+		{
 		$this_year = date('Y');
 		if( $result > $this_year )
 			$result = $this_year;
@@ -182,11 +204,13 @@ function _get_end_year( $end_year, &$extra ) {
 //
 //	Unless they are on-site links.
 //
-function _sed_build_href( $text, $href, $title ) {
+function _sed_build_href( $text, $href, $title ) 
+	{
 	$result = '';
 
 	$href = strtolower( $href );
-	if( strstr( $href, 'mailto:' ) )	{
+	if( strstr( $href, 'mailto:' ) )	
+		{
 		$href = eE( $href );
 		$text = eE( $text );
 		$title = eE( $title );
@@ -218,7 +242,8 @@ function _sed_build_href( $text, $href, $title ) {
 //	Of these, option 1 is faster but is not available to us if
 // the TXP installation has comments updating the lastmod date.
 //
-function sed_copyright_date( $atts )	{
+function sed_copyright_date( $atts )
+	{
 	global $thisarticle;
 	global $prefs;
 	global $is_article_list;
@@ -250,7 +275,8 @@ function sed_copyright_date( $atts )	{
 	$start_extra = '';	//	Holds extra debug strings from date access routines.
 	$end_extra = '';	//	Holds extra debug strings from date access routines.
 
-	if( !empty($debug) ) {
+	if( !empty($debug) ) 
+		{
 		echo "<br/>=== Copyright Date: Start Attributes ===<br/>\n";
 		print_r( $atts );
 		echo "<br/>=== Copyright Date:  End  Attributes ===<br/>\n";
@@ -262,11 +288,13 @@ function sed_copyright_date( $atts )	{
 	//	Call the date access routines. These will access the cached date variables if needed and also give extra information
 	// for debug in the $_extra strings.
 	//
-	if( empty($custom) or (true==$is_article_list) ) {
+	if( empty($custom) or (true==$is_article_list) ) 
+		{
 		$start = _get_start_year( $start_year , $start_extra );
 		$end   = _get_end_year( $end_year , $end_extra );
 		}
-	else{
+	else
+		{
 		//	This section deals with article copyright processing. It looks in the named custom field for a section called 'copyright' and pulls
 		// any needed details from it. Defaults to the posted date and article author but that can be overidden.
 		//	copyright(attrib1='val1';attrib2='val2')
@@ -294,7 +322,8 @@ function sed_copyright_date( $atts )	{
 	//
 	//	Only ouput the extra debug info if needed.
 	//
-	if( empty( $debug ) ) {
+	if( empty( $debug ) ) 
+		{
 		$start_extra = '';
 		$end_extra   = '';
 		}
@@ -318,7 +347,8 @@ function sed_copyright_date( $atts )	{
 	//
 	//	Format the resulting date string...
 	//
-	switch( $date_type )	{
+	switch( $date_type )	
+		{
 		case 'range'	:	$result = $start_extra.$start.'-'.$end_extra.$end ;
 							break;
 		case 'start'	:	$result = $start_extra.$start;
@@ -339,7 +369,8 @@ function sed_copyright_date( $atts )	{
 // date-section then jois it with the copyright and owner
 // sections to give you your formatted copyright message.
 //
-function sed_copyright($atts) {
+function sed_copyright($atts) 
+	{
 	global $sed_copyright_owner;
 	global $prefs;
 
@@ -367,7 +398,8 @@ function sed_copyright($atts) {
 									// 			 which to read values.
 		), $atts));
 
-	if( !empty( $debug ) ) {
+	if( !empty( $debug ) ) 
+		{
 		print_r( '<br/><br/><br/>' );
 		print_r( $prefs );
 		}
@@ -391,7 +423,8 @@ function sed_copyright($atts) {
 	//
 	if( !empty($sed_copyright_owner) )
 		$owner = $sed_copyright_owner;
-	elseif( !empty( $owner_href ) )	{
+	elseif( !empty( $owner_href ) )	
+		{
 		$owner = _sed_build_href( $owner, $owner_href, $owner_title );
 		}
 
@@ -400,7 +433,8 @@ function sed_copyright($atts) {
 	//	Join it together...
 	//
 	$bits = array();
-	switch( $order )	{
+	switch( $order )	
+		{
 		case 'cod':		$bits[] = $copy_text;
 						$bits[] = $owner;
 						if( !empty($date) ) $bits[] = $date;
